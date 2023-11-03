@@ -11,20 +11,21 @@ def Menu():
         \n[versão beta de produção] - nov. 2023 - por Matheus Barroso\
         \n-----------------------------------------------------------")
 
-    print("\nO que você deseja fazer?\n")
+    print("\n   O que você deseja fazer?\n")
 
-    print("1 - Aplicação de Drivers")
-    print("2 - Extração de Drivers")
-    print("3 - Conferir informações do computador")
+    print("   1 - Aplicação de Drivers")
+    print("   2 - Extração de Drivers")
+    print("   3 - Conferir informações do computador")
 
-    print("\n0 - Fechar o Script")
+    print("\n   0 - Fechar o Script")
 
     # Solicita o input, e caso não seja numérico, retorna a mensagem de erro
     try:
-        option = int(input("\nDigite o número da sua opção: "))
+        option = int(input("\n|> Digite o número da sua opção: "))
     except ValueError:
-        input("\n  # Erro # -- Insira apenas um número inteiro.\
-               \n  Pressione Enter para voltar ao Menu Principal...")
+        print("\n-----------------------------------------------------------")
+        input("\n   # Erro # -- Insira apenas um número inteiro.\
+               \n|> Pressione Enter para voltar ao Menu Principal...")
         ResetMenu()
 
     print("\n-----------------------------------------------------------")
@@ -36,19 +37,19 @@ def Menu():
             ExtractDrivers()
         case 3:
             input("\nFunção Indisponível.\
-                   \nPressione Enter para escolher outra opção...")
+                   \n|> Pressione Enter para escolher outra opção...")
             ResetMenu()
         case 0:
             sys.exit()
         case _:
             input("\nOpção Indisponível.\
-                   \nPressione Enter para escolher outra opção...")
+                   \n|> Pressione Enter para escolher outra opção...")
             ResetMenu()
 
     # Mensagens padrão:
 
-        #input("\nFunção Indisponível. \nPressione Enter para escolher outra opção...")
-        #input("\nOpção Indisponível. \nPressione Enter para escolher outra opção...")
+        #input("\nFunção Indisponível. \n|> Pressione Enter para escolher outra opção...")
+        #input("\nOpção Indisponível. \n|> Pressione Enter para escolher outra opção...")
 
 
 
@@ -99,26 +100,26 @@ def CheckBasicFolders():
 
     # Cria a pasta 'Drivers' no Diretório, caso não exista
     if not os.path.exists(drivers_storage):
-        print(f"\n{drivers_storage} será criada!")
         os.mkdir(drivers_storage)
+        print(f"\nA pasta a seguir foi criada por ser uma dependência do script: \n{drivers_storage}")
 
     # Cria a pasta 'Extrações' no Diretório, caso não exista
     if not os.path.exists(extractions_dest):
-        print(f"\n{extractions_dest} será criada!")
         os.mkdir(extractions_dest)
+        print(f"\nA pasta a seguir foi criada por ser uma dependência do script: \n{extractions_dest}")
 
 
 
 # Fornece ao usuário a opção de deletar uma pasta e deleta, se for o caso
 def AskAndDeleteFolder(display_path, complete_path):
     x = input(f"\nEncontrei a pasta {display_path}, mas ela está vazia.\
-              \nGostaria de deletar a pasta? (S/N): ").upper().strip().replace(" ", "")
+              \n|> Gostaria de deletar a pasta? (S/N): ").upper().strip().replace(" ", "")
     
     if x == "S":
         os.rmdir(complete_path)
         input("Pasta Excluída! Pressione Enter para voltar ao Menu Principal...")
     if x == "N":
-        input("Pressione Enter para voltar ao Menu Principal...")
+        input("|> Pressione Enter para voltar ao Menu Principal...")
 
     ResetMenu()
 
@@ -129,6 +130,9 @@ def ExtractDrivers():
     global model
     global drivers_storage
     global extractions_dest
+    
+    print("\n            ~ Módulo de Extração de Drivers ~")
+    print("\nÉ necessário possuir privilégios de Administrador para exe-\ncução do comando.")
 
     GetModelName()
     CheckBasicFolders()
@@ -153,7 +157,7 @@ def ExtractDrivers():
         
         else:
             print(f"\nJá existem drivers armazenados para este modelo ({displayable_model})!")
-            input("Pressione Enter para voltar ao Menu Principal...")
+            input("|> Pressione Enter para voltar ao Menu Principal...")
             ResetMenu()
 
     # Checa se a pasta com o nome do modelo já existe em \Extrações
@@ -167,7 +171,7 @@ def ExtractDrivers():
 
         else:
             print(f"\nJá existem drivers extraídos para este modelo ({displayable_model})!")
-            input("Pressione Enter para voltar ao Menu Principal...")
+            input("|> Pressione Enter para voltar ao Menu Principal...")
             ResetMenu()
 
     # Extrai os drivers caso não existam pastas
@@ -175,7 +179,7 @@ def ExtractDrivers():
 
         print(f"\nNão há drivers para este modelo ({displayable_model})!")
         print(f"Os drivers serão salvos em '\\Extrações\\{model}'.")
-        confirm = input("Pressione Enter para confirmar a extração...")
+        confirm = input("\n|> Pressione Enter para confirmar a extração...")
 
         print("\n-----------------------------------------------------------\n")
 
@@ -183,8 +187,9 @@ def ExtractDrivers():
         os.mkdir(extracted_driver)
 
         print("\nA extração de drivers será executada em outra janela.\
+               \nÉ necessário privilégios de Administrador para execução do comando.\
                \nAguarde o fim da sua execução para prosseguir.")
-        time.sleep(6) # Tempo de espera para leitura
+        time.sleep(10) # Tempo de espera para leitura
 
         # Executa o comando de extração com privilégios de Administrador
         RunAsAdministrator(command)
@@ -192,7 +197,7 @@ def ExtractDrivers():
         # O módulo 'subprocess' pode executar como usuário Administrador, mas não com privilégios de ADM
             # subprocess.run(["runas", "/user:Administrator", command], shell=True)
         
-        input("\nAo finalizar a execução, pressione Enter...")
+        input("\n|> Ao finalizar a execução, pressione Enter...")
         ResetMenu()
 
 
@@ -203,16 +208,19 @@ def ApplyDrivers():
     global model
     global drivers_storage
 
+    print("\n           ~ Módulo de Aplicação de Drivers ~")
+    print("\nÉ necessário possuir privilégios de Administrador para exe-\ncução do comando.")
+    
     GetModelName()
     CheckBasicFolders()
 
     if os.path.exists(os.path.join(drivers_storage, model)):
         print("\nDrivers OK!")
-        input("Pressione Enter para voltar ao Menu Principal...")
+        input("|> Pressione Enter para voltar ao Menu Principal...")
         ResetMenu()
     else:
         print(f"\nNão há drivers para este modelo ({displayable_model})! :(")
-        input("Pressione Enter para voltar ao Menu Principal...")
+        input("|> Pressione Enter para voltar ao Menu Principal...")
         ResetMenu()
 
 
@@ -243,4 +251,4 @@ Menu()
 
 # print(f"\nComputador Modelo: {model}")
 # print(f"\nDiretório do Script: {scriptdir}")
-input("\nOps! :/ Algo de errado não está certo... \nPressione Enter para fechar o Script")
+input("\nOps! :/ Algo de errado não está certo... \n|> Pressione Enter para fechar o Script")
