@@ -7,6 +7,7 @@ import os
 
 
 def Menu():
+    
     print("  ~~~~ Bem-Vindo(a) ao Script Gerenciador de Drivers! ~~~~\
         \n[versão beta de produção] - nov. 2023 - por Matheus Barroso\
         \n-----------------------------------------------------------")
@@ -90,6 +91,15 @@ def GetScriptPath():
 def CheckBasicFolders():
     global drivers_storage
     global extractions_dest
+    
+    global drivers_fdr_name
+    global extractions_frd_name
+    
+    global stored_driver
+    global extracted_driver
+    
+    drivers_fdr_name = 'Drivers'
+    extractions_frd_name = 'Extrações'
 
     GetScriptPath()
 
@@ -97,6 +107,11 @@ def CheckBasicFolders():
     drivers_storage = os.path.join(scriptdir, "Drivers")
     # Caminho completo da pasta \Extrações
     extractions_dest = os.path.join(scriptdir, "Extrações")
+    
+    # Pasta com nome do modelo em 'Drivers'
+    stored_driver = os.path.join(drivers_storage, model)
+    # Pasta com nome do modelo em 'Extrações'
+    extracted_driver = os.path.join(extractions_dest, model)
 
     # Cria a pasta 'Drivers' no Diretório, caso não exista
     if not os.path.exists(drivers_storage):
@@ -110,16 +125,61 @@ def CheckBasicFolders():
 
 
 
+def CheckModelFolder():
+    global model
+    global displayable_model
+    
+    global stored_driver
+    global extracted_driver
+    
+    global drivers_fdr_name
+    global extractions_frd_name
+    
+    for option in [1, 2]:
+    
+        match option:
+            case 1:
+                state = 'armazenados'
+                folder = stored_driver
+                folder_name = drivers_fdr_name
+            case 2:
+                state = 'extraídos'
+                folder = extracted_driver
+                folder_name = extractions_frd_name
+    
+        if os.path.exists(folder):
+
+            # Checa se a pasta está vazia
+            if len(os.listdir(folder)) == 0:
+                display_path = f"\\{folder_name}\\{model}\\"
+                # Fornece ao usuário opção de deletar a pasta vazia
+                AskAndDeleteFolder(display_path, folder)
+            
+            else:
+                print(f"\nJá existem drivers {state} para este modelo ({displayable_model})!")
+                input("\n|> Pressione Enter para voltar ao Menu Principal...")
+                ResetMenu()
+
+    return False
+
+
+
 # Fornece ao usuário a opção de deletar uma pasta e deleta, se for o caso
 def AskAndDeleteFolder(display_path, complete_path):
-    x = input(f"\nEncontrei a pasta {display_path}, mas ela está vazia.\
-              \n|> Gostaria de deletar a pasta? (S/N): ").upper().strip().replace(" ", "")
     
-    if x == "S":
+    # Exclusão da pasta
+    confirmation = input(f"\nEncontrei a pasta {display_path}, mas ela está vazia.\
+                         \n\n|> Gostaria de deletar a pasta? (S/N): ")\
+                               .upper().strip().replace(" ", "")
+    
+    if confirmation == "S":
         os.rmdir(complete_path)
-        input("Pasta Excluída! Pressione Enter para voltar ao Menu Principal...")
-    if x == "N":
-        input("|> Pressione Enter para voltar ao Menu Principal...")
+        input("\nPasta Excluída! \n\n|> Pressione Enter para voltar ao Menu Principal...")
+    elif confirmation == "N":
+        input("\n|> Pressione Enter para voltar ao Menu Principal...")
+    else:
+        print("Não entendi sua resposta, voltando ao Menu Principal...")
+        time.sleep(5)
 
     ResetMenu()
 
@@ -128,68 +188,33 @@ def AskAndDeleteFolder(display_path, complete_path):
 # Função de Extração dos Drivers
 def ExtractDrivers():
     global model
-    global drivers_storage
-    global extractions_dest
+    global extracted_driver
     
     print("\n            ~ Módulo de Extração de Drivers ~")
     print("\nÉ necessário possuir privilégios de Administrador para exe-\ncução do comando.")
+    print("\n-----------------------------------------------------------")
 
     GetModelName()
     CheckBasicFolders()
 
-    # Pasta com nome do modelo em 'Drivers'
-    stored_driver = os.path.join(drivers_storage, model)
-
-    # Pasta com nome do modelo em 'Extrações'
-    extracted_driver = os.path.join(extractions_dest, model)
-
     # Comando de extração de drivers (requer privilégios de ADM)
     command = f'DISM /Online /Export-Driver /Destination:"{extracted_driver}"'
 
-    # Checa se a pasta com o nome do modelo já existe em \Drivers
-    if os.path.exists(stored_driver):
-
-        # Checa se a pasta está vazia
-        if len(os.listdir(stored_driver)) == 0:
-            display_path = f"\\Drivers\\{model}\\"
-            # Fornece ao usuário opção de deletar a pasta vazia
-            AskAndDeleteFolder(display_path, stored_driver)
-        
-        else:
-            print(f"\nJá existem drivers armazenados para este modelo ({displayable_model})!")
-            input("|> Pressione Enter para voltar ao Menu Principal...")
-            ResetMenu()
-
-    # Checa se a pasta com o nome do modelo já existe em \Extrações
-    if os.path.exists(extracted_driver):
-        
-        # Checa se a pasta está vazia
-        if len(os.listdir(extracted_driver)) == 0:
-            display_path = f"\\Extrações\\{model}\\"
-            # Fornece ao usuário opção de deletar a pasta vazia
-            AskAndDeleteFolder(display_path, extracted_driver)
-
-        else:
-            print(f"\nJá existem drivers extraídos para este modelo ({displayable_model})!")
-            input("|> Pressione Enter para voltar ao Menu Principal...")
-            ResetMenu()
-
-    # Extrai os drivers caso não existam pastas
-    else:
+    # Extrai os drivers caso não existam pastas com o nome do modeço
+    if CheckModelFolder() == False:
 
         print(f"\nNão há drivers para este modelo ({displayable_model})!")
         print(f"Os drivers serão salvos em '\\Extrações\\{model}'.")
         confirm = input("\n|> Pressione Enter para confirmar a extração...")
 
-        print("\n-----------------------------------------------------------\n")
+        print("\n-----------------------------------------------------------")
 
         # Cria a pasta com nome do modelo em \Extrações
         os.mkdir(extracted_driver)
 
         print("\nA extração de drivers será executada em outra janela.\
-               \nÉ necessário privilégios de Administrador para execução do comando.\
                \nAguarde o fim da sua execução para prosseguir.")
-        time.sleep(10) # Tempo de espera para leitura
+        time.sleep(7) # Tempo de espera para leitura
 
         # Executa o comando de extração com privilégios de Administrador
         RunAsAdministrator(command)
@@ -216,11 +241,11 @@ def ApplyDrivers():
 
     if os.path.exists(os.path.join(drivers_storage, model)):
         print("\nDrivers OK!")
-        input("|> Pressione Enter para voltar ao Menu Principal...")
+        input("\n|> Pressione Enter para voltar ao Menu Principal...")
         ResetMenu()
     else:
         print(f"\nNão há drivers para este modelo ({displayable_model})! :(")
-        input("|> Pressione Enter para voltar ao Menu Principal...")
+        input("\n> Pressione Enter para voltar ao Menu Principal...")
         ResetMenu()
 
 
