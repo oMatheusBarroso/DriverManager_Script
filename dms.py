@@ -117,14 +117,18 @@ def CheckBasicFolders():
     if not os.path.exists(drivers_storage):
         os.mkdir(drivers_storage)
         print(f"\nA pasta a seguir foi criada por ser uma dependência do script: \n{drivers_storage}")
-
+    else:
+        None
+        
     # Cria a pasta 'Extrações' no Diretório, caso não exista
     if not os.path.exists(extractions_dest):
         os.mkdir(extractions_dest)
         print(f"\nA pasta a seguir foi criada por ser uma dependência do script: \n{extractions_dest}")
+    else:
+        None
 
 
-
+# Checa a existência da pasta com nome do modelo em \Drivers e \Extrações
 def CheckModelFolder():
     global model
     global displayable_model
@@ -159,7 +163,9 @@ def CheckModelFolder():
                 print(f"\nJá existem drivers {state} para este modelo ({displayable_model})!")
                 input("\n|> Pressione Enter para voltar ao Menu Principal...")
                 ResetMenu()
-
+        else:
+            None
+            
     return False
 
 
@@ -224,6 +230,8 @@ def ExtractDrivers():
         
         input("\n|> Ao finalizar a execução, pressione Enter...")
         ResetMenu()
+    else:
+        None
 
 
 
